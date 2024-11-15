@@ -22,12 +22,12 @@ public class UpdateProductDto {
     private final String description;
     @Min(value = 0 , message = PRODUCT_COST_EXCEPTION_MESSAGE)
     private final Integer cost;
-    private final String state;
+    private final String inStock;
 
-    public UpdateProductDto(String title, String description, Integer cost, String state) {
+    public UpdateProductDto(String title, String description, Integer cost, String inStock) {
         this.title = title;
         this.description = description;
         this.cost = cost;
-        this.state = state;
+        this.inStock = inStock;
     }
 }

@@ -49,9 +49,9 @@ public class ProductControllerTest {
                           "title" : "%s",
                           "description" : "%s",
                           "cost" : "%d",
-                          "state" : "%s"
+                          "inStock" : "%s"
                         }
-                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getState())));
+                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getInStock())));
 
 
         actions.andExpect(MockMvcResultMatchers.status().isCreated())
@@ -59,7 +59,7 @@ public class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is(dto.getTitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description", Matchers.is(dto.getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cost", Matchers.is(dto.getCost())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.state", Matchers.is(expectedState)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.inStock", Matchers.is(expectedState)));
     }
 
     static Stream<Arguments> argumentsForCreateProductTest(){
@@ -81,9 +81,9 @@ public class ProductControllerTest {
                           "title" : "%s",
                           "description" : "%s",
                           "cost" : "%d",
-                          "state" : "%s"
+                          "inStock" : "%s"
                         }
-                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getState())));
+                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getInStock())));
 
         actions.andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result", Matchers.is(false)))
@@ -151,7 +151,7 @@ public class ProductControllerTest {
                           "title" : "Mobile phone 1",
                           "description" : "Description",
                           "cost" : 111,
-                          "state" : "EXIST"
+                          "inStock" : "EXIST"
                         }
                         """));
 
@@ -160,7 +160,7 @@ public class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Mobile phone 1")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description", Matchers.is("Description")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cost", Matchers.is(111)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.state", Matchers.is("EXIST")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.inStock", Matchers.is("EXIST")));
     }
 
     @ParameterizedTest
@@ -176,9 +176,9 @@ public class ProductControllerTest {
                           "title" : "%s",
                           "description" : "%s",
                           "cost" : "%d",
-                          "state" : "%s"
+                          "inStock" : "%s"
                         }
-                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getState())));
+                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getInStock())));
 
         actions.andExpect(MockMvcResultMatchers.status().is(status))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result", Matchers.is(false)))

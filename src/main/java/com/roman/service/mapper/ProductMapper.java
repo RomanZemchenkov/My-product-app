@@ -18,7 +18,7 @@ public class ProductMapper {
         Product product = new Product();
         product.setId(idGenerator.getAndIncrement());
 
-        return productFactory(product,dto.getTitle(), dto.getDescription(), dto.getCost(), dto.getState());
+        return productFactory(product,dto.getTitle(), dto.getDescription(), dto.getCost(), dto.getInStock());
     }
 
     public ShowProductDto mapToShow(Product product){
@@ -26,19 +26,19 @@ public class ProductMapper {
         String title = product.getTitle();
         String description = product.getDescription();
         Integer cost = product.getCost();
-        String state = product.getState().name();
+        String state = product.getInStock().name();
         return new ShowProductDto(productId, title,description,cost, state);
     }
 
     public Product mapToProduct(UpdateProductDto dto, Product product){
-        return productFactory(product,dto.getTitle(), dto.getDescription(), dto.getCost(), dto.getState());
+        return productFactory(product,dto.getTitle(), dto.getDescription(), dto.getCost(), dto.getInStock());
     }
 
     private Product productFactory(Product product, String title, String description, Integer cost, String state){
         product.setTitle(title);
         product.setDescription(description);
         product.setCost(cost);
-        product.setState((state != null && state.equals("EXIST")) ? ProductState.EXIST : ProductState.NOT_EXIST);
+        product.setInStock((state != null && state.equals("EXIST")) ? ProductState.EXIST : ProductState.NOT_EXIST);
 
         return product;
     }
