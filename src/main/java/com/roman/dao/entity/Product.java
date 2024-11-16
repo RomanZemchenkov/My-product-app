@@ -25,10 +25,10 @@ public class Product implements BaseEntity<Long>{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title")
+    @Column(name = "title",length = 255)
     private String title;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 4096)
     private String description;
 
     @Column(name = "cost")

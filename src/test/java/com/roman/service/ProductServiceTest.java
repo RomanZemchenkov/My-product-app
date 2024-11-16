@@ -8,7 +8,6 @@ import com.roman.service.dto.ShowProductDto;
 import com.roman.service.dto.UpdateProductDto;
 import com.roman.service.mapper.ProductMapper;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,17 +24,13 @@ public class ProductServiceTest {
 
     @InjectMocks
     private ProductService productService;
-
+    @Mock
+    private ProductMapper productMapper;
     @Mock
     private ProductRepository productRepository;
 
-    private final ProductMapper productMapper = new ProductMapper();
     private static final Product PRODUCT = new Product(1L,"Phone","Description",100,ProductState.EXIST);
-
-    @BeforeEach
-    void setUp(){
-        productService = new ProductService(productRepository, productMapper);
-    }
+    private static final ShowProductDto SHOW_PRODUCT_DTO = new ShowProductDto(1L,"Phone","Description",100,"EXIST");
 
     @Test
     @DisplayName("Test for create product")
@@ -45,7 +40,9 @@ public class ProductServiceTest {
         int cost = 100;
         CreateProductDto dto = new CreateProductDto(title, description, cost, "EXIST");
 
+        Mockito.when(productMapper.mapToProduct(dto)).thenReturn(PRODUCT);
         Mockito.when(productRepository.save(Mockito.any())).thenReturn(PRODUCT);
+        Mockito.when(productMapper.mapToShow(PRODUCT)).thenReturn(SHOW_PRODUCT_DTO);
 
         productService.addNewProduct(dto);
 
@@ -57,6 +54,7 @@ public class ProductServiceTest {
     void findProductById(){
 
         Mockito.when(productRepository.findById(1L)).thenReturn(Optional.of(PRODUCT));
+        Mockito.when(productMapper.mapToShow(PRODUCT)).thenReturn(Mockito.any());
 
         productService.findById(1L);
 
@@ -66,11 +64,12 @@ public class ProductServiceTest {
     @Test
     @DisplayName("Test for find all products")
     void findAllProducts(){
-        Mockito.when(productRepository.getAll()).thenReturn(List.of(PRODUCT));
+        Mockito.when(productRepository.findAll()).thenReturn(List.of(PRODUCT));
+        Mockito.when(productMapper.mapToShow(Mockito.any())).thenReturn(SHOW_PRODUCT_DTO);
 
         Assertions.assertDoesNotThrow(() -> productService.findAllProducts());
 
-        Mockito.verify(productRepository, Mockito.times(1)).getAll();
+        Mockito.verify(productRepository, Mockito.times(1)).findAll();
     }
 
     @Test
@@ -80,21 +79,24 @@ public class ProductServiceTest {
 
         UpdateProductDto updateDto = new UpdateProductDto("NewTitle", "NewDescription", 120, "EXIST");
         Product updateProduct = new Product(1L, "NewTitle", "NewDescription", 120, ProductState.EXIST);
-        Mockito.when(productRepository.update(updateProduct)).thenReturn(updateProduct);
+        Mockito.when(productMapper.mapToProduct(updateDto,PRODUCT)).thenReturn(updateProduct);
+        Mockito.when(productMapper.mapToShow(updateProduct)).thenReturn(SHOW_PRODUCT_DTO);
+        Mockito.when(productRepository.save(updateProduct)).thenReturn(updateProduct);
 
         Assertions.assertDoesNotThrow(() -> productService.update(1L,updateDto));
 
-        Mockito.verify(productRepository, Mockito.times(1)).update(updateProduct);
+        Mockito.verify(productRepository, Mockito.times(1)).save(updateProduct);
     }
 
     @Test
     @DisplayName("Test for delete product")
     void deleteProduct(){
-        Mockito.when(productRepository.delete(1L)).thenReturn(true);
+        Mockito.when(productRepository.findById(1L)).thenReturn(Optional.of(PRODUCT));
+        Mockito.doNothing().when(productRepository).deleteById(1L);
 
         Assertions.assertDoesNotThrow(() -> productService.delete(1L));
 
-        Mockito.verify(productRepository, Mockito.times(1)).delete(1L);
+        Mockito.verify(productRepository, Mockito.times(1)).deleteById(1L);
     }
 
 }

@@ -1,45 +1,36 @@
 package com.roman.service.mapper;
 
 import com.roman.dao.entity.Product;
-import com.roman.dao.entity.ProductState;
 import com.roman.service.dto.CreateProductDto;
 import com.roman.service.dto.ShowProductDto;
 import com.roman.service.dto.UpdateProductDto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-import java.util.concurrent.atomic.AtomicLong;
 
-@Component
-public class ProductMapper {
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
 
-    private static final AtomicLong idGenerator = new AtomicLong(1);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "cost", source = "cost")
+    @Mapping(target = "inStock", source = "inStock")
+    Product mapToProduct(CreateProductDto dto);
 
-    public Product mapToProduct(CreateProductDto dto){
-        Product product = new Product();
-        product.setId(idGenerator.getAndIncrement());
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "cost", source = "cost")
+    @Mapping(target = "inStock", expression = "java(ProductState.valueOf(dto.getInStock() == null || dto.getInStock().isEmpty() ? \"NOT_EXIST\" : dto.getInStock()))")
+    Product mapToProduct(UpdateProductDto dto, @MappingTarget Product product);
 
-        return productFactory(product,dto.getTitle(), dto.getDescription(), dto.getCost(), dto.getInStock());
-    }
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "cost", source = "cost")
+    @Mapping(target = "inStock", source = "inStock")
+    ShowProductDto mapToShow(Product product);
 
-    public ShowProductDto mapToShow(Product product){
-        Long productId = product.getId();
-        String title = product.getTitle();
-        String description = product.getDescription();
-        Integer cost = product.getCost();
-        String state = product.getInStock().name();
-        return new ShowProductDto(productId, title,description,cost, state);
-    }
-
-    public Product mapToProduct(UpdateProductDto dto, Product product){
-        return productFactory(product,dto.getTitle(), dto.getDescription(), dto.getCost(), dto.getInStock());
-    }
-
-    private Product productFactory(Product product, String title, String description, Integer cost, String state){
-        product.setTitle(title);
-        product.setDescription(description);
-        product.setCost(cost);
-        product.setInStock((state != null && state.equals("EXIST")) ? ProductState.EXIST : ProductState.NOT_EXIST);
-
-        return product;
-    }
 }

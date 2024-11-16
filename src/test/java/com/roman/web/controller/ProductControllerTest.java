@@ -1,61 +1,60 @@
 package com.roman.web.controller;
 
-import com.roman.dao.entity.Product;
-import com.roman.dao.entity.ProductState;
-import com.roman.dao.repository.ProductRepository;
+import com.roman.service.ProductService;
 import com.roman.service.dto.CreateProductDto;
+import com.roman.service.dto.ShowProductDto;
 import com.roman.service.dto.UpdateProductDto;
 import com.roman.service.exception.ExceptionMessage;
+import com.roman.service.exception.ProductDoesntExistException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 import static java.util.stream.IntStream.range;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@DirtiesContext
-public class ProductControllerTest {
+@WebMvcTest(ProductController.class)
+public class ProductControllerTest{
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ProductRepository productRepository;
+    @MockBean
+    private ProductService productService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @ParameterizedTest
     @DisplayName("Test /api/product POST create query")
     @MethodSource("argumentsForCreateProductTest")
-    void createProductQuery(CreateProductDto dto, String expectedState, int expectedId) throws Exception {
+    void createProductQuery(CreateProductDto dto, String expectedState, long id) throws Exception {
+        ShowProductDto expectedShowProductDto = new ShowProductDto(id, dto.getTitle(), dto.getDescription(), dto.getCost(), expectedState);
+        when(productService.addNewProduct(dto)).thenReturn(expectedShowProductDto);
+
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "title" : "%s",
-                          "description" : "%s",
-                          "cost" : "%d",
-                          "inStock" : "%s"
-                        }
-                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getInStock())));
+                .content(objectMapper.writeValueAsString(dto)));
 
 
         actions.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(expectedId)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is(dto.getTitle())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description", Matchers.is(dto.getDescription())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cost", Matchers.is(dto.getCost())))
@@ -64,9 +63,9 @@ public class ProductControllerTest {
 
     static Stream<Arguments> argumentsForCreateProductTest(){
         return Stream.of(
-                Arguments.of(new CreateProductDto("Mobile","desc",100,"EXIST"),"EXIST",1),
-                Arguments.of(new CreateProductDto("Mobile1","desc",100,null),"NOT_EXIST",2),
-                Arguments.of(new CreateProductDto("Mobile2","desc",100,"NOT_EXIST"),"NOT_EXIST",3)
+                Arguments.of(new CreateProductDto("Mobile","desc",100,"EXIST"),"EXIST",1L),
+                Arguments.of(new CreateProductDto("Mobile1","desc",100,null),"NOT_EXIST",2L),
+                Arguments.of(new CreateProductDto("Mobile2","desc",100,"NOT_EXIST"),"NOT_EXIST",3L)
         );
     }
 
@@ -76,14 +75,7 @@ public class ProductControllerTest {
     void createProductWithWrongParameters(CreateProductDto dto, String expectedExceptionMessage) throws Exception {
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "title" : "%s",
-                          "description" : "%s",
-                          "cost" : "%d",
-                          "inStock" : "%s"
-                        }
-                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getInStock())));
+                .content(objectMapper.writeValueAsString(dto)));
 
         actions.andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result", Matchers.is(false)))
@@ -103,7 +95,8 @@ public class ProductControllerTest {
     @Test
     @DisplayName("Test for /api/product/{id} GET find query")
     void findByIdMethodTest() throws Exception {
-        productRepository.save(new Product(1L, "Mobile Phone", "desc", 100, ProductState.EXIST));
+        ShowProductDto dto = new ShowProductDto(1L, "Mobile Phone", "Desc", 100,"EXIST" );
+        Mockito.when(productService.findById(1L)).thenReturn(dto);
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.get("/api/products/" + 1));
 
         actions
@@ -117,6 +110,7 @@ public class ProductControllerTest {
     @Test
     @DisplayName("Test for /api/product/{id} GET find query without exist product")
     void findByIdMethodWithoutExistProduct() throws Exception {
+        Mockito.when(productService.findById(100L)).thenThrow(new ProductDoesntExistException(100L));
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.get("/api/products/" + 100));
 
         actions
@@ -128,9 +122,10 @@ public class ProductControllerTest {
     @Test
     @DisplayName("Test for /api/product GET find all query")
     void findAllProducts() throws Exception {
-        productRepository.save(new Product(1L, "Mobile Phone", "desc", 100, ProductState.EXIST));
-        productRepository.save(new Product(2L, "Mobile Phone 2", "desc", 100, ProductState.EXIST));
+        ShowProductDto dto1 = new ShowProductDto(1L, "Mobile Phone 1", "Desc", 100,"EXIST");
+        ShowProductDto dto2 = new ShowProductDto(2L, "Mobile Phone 2", "Desc", 100,"EXIST");
 
+        Mockito.when(productService.findAllProducts()).thenReturn(List.of(dto1,dto2));
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.get("/api/products"));
 
         actions.andExpect(MockMvcResultMatchers.status().isOk())
@@ -142,22 +137,17 @@ public class ProductControllerTest {
     @Test
     @DisplayName("Test /api/product/{id} PATCH update query")
     void updateProduct() throws Exception {
-        productRepository.save(new Product(1L, "Mobile Phone", "desc", 100, ProductState.EXIST));
+        UpdateProductDto dto = new UpdateProductDto("Mobile Phone 1", "Description", 111, "EXIST");
+        ShowProductDto updatedDto = new ShowProductDto(1L, "Mobile Phone 1", "Description", 111,"EXIST");
+        Mockito.when(productService.update(1L,dto)).thenReturn(updatedDto);
 
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.patch("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "title" : "Mobile phone 1",
-                          "description" : "Description",
-                          "cost" : 111,
-                          "inStock" : "EXIST"
-                        }
-                        """));
+                .content(objectMapper.writeValueAsString(dto)));
+
 
         actions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Mobile phone 1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Mobile Phone 1")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description", Matchers.is("Description")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cost", Matchers.is(111)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.inStock", Matchers.is("EXIST")));
@@ -167,18 +157,12 @@ public class ProductControllerTest {
     @DisplayName("Test /api/product/{id} PATCH update query with wrong parameters")
     @MethodSource("argumentForUpdateProductWithWrongParameters")
     void updateProductWithWrongParameters(Long id, int status, UpdateProductDto dto, String expectedExceptionMessage) throws Exception {
-        productRepository.save(new Product(1L, "Mobile Phone", "desc", 100, ProductState.EXIST));
+        Mockito.when(productService.update(id,dto)).thenThrow(new ProductDoesntExistException(id));
 
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.patch("/api/products/" + id)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "title" : "%s",
-                          "description" : "%s",
-                          "cost" : "%d",
-                          "inStock" : "%s"
-                        }
-                        """.formatted(dto.getTitle(),dto.getDescription(),dto.getCost(),dto.getInStock())));
+                .content(objectMapper.writeValueAsString(dto)));
+
 
         actions.andExpect(MockMvcResultMatchers.status().is(status))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result", Matchers.is(false)))
@@ -199,8 +183,7 @@ public class ProductControllerTest {
     @Test
     @DisplayName("Test for /api/product/{id} DELETE product")
     void deleteProductById() throws Exception {
-        productRepository.save(new Product(1L, "Mobile Phone", "desc", 100, ProductState.EXIST));
-
+        Mockito.when(productService.delete(1L)).thenReturn(1L);
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.delete("/api/products/1"));
 
         actions.andExpect(MockMvcResultMatchers.status().isOk())
@@ -210,6 +193,8 @@ public class ProductControllerTest {
     @Test
     @DisplayName("Test for /api/product/{id} DELETE product without exist product")
     void deleteProductByIdWithoutExistProduct() throws Exception {
+        Mockito.when(productService.delete(100L)).thenThrow(new ProductDoesntExistException(100L));
+
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.delete("/api/products/100"));
 
         actions.andExpect(MockMvcResultMatchers.status().isNotFound())
