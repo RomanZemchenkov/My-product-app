@@ -1,0 +1,33 @@
+networks:
+  my_application:
+    driver: "bridge"
+
+name: "product_app"
+
+services:
+  database:
+    image: "postgres:16.3"
+    container_name: "postgres_database"
+    ports:
+      - "5432:5432"
+    environment:
+      - "POSTGRES_USER=${DB_USERNAME:-postgres}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}"
+      - "POSTGRES_DB=${DB_NAME:-base_name}"
+    networks:
+      - my_application
+
+
+  product_app:
+    image: "myproducts:0.0.3"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_database:5432/${DB_NAME:-base_name}"
+      - "SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-postgres}"
+      - "SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-postgres}"
+    networks:
+      - my_application

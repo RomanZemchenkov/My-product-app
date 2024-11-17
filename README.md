@@ -3,7 +3,7 @@
 Этот проект представляет собой REST API для интернет-магазина "МоиТовары".
 
 ## Версия 0.0.2-SNAPSHOT
-1. Добавлена возможность подключения своей базы данных для сохранения товаров.
+1. Добавлена возможность использование docker-compose
 
 ### Настройка и запуск
 1. Склонируйте репозиторий
@@ -18,16 +18,22 @@
    ```bash
     mvn clean package -DskipTests
    ```
+4. Создание Docker образа
+    ```bash
+     docker build -t myproducts:0.0.3 .
+    ```
+
 #### Установка конфигурации
-Вы можете настроить подключение к базе данных двумя способами:
+Вы можете настроить подключение к базе данных тремя способами:
 ##### Способ 1: Указание переменных окружения в командной строке
-Запустите приложение, передав параметры подключения через флаги:
+Запустите приложение, передав параметры подключения через флаги : 
 ```bash
- java -jar target/MyProducts-0.0.2-SNAPSHOT.jar -DB_NAME=your_database_name -DB_USERNAME=username -DB_PASSWORD=password
+ cd docker
+ DB_NAME=your_database_name DB_USERNAME=username DB_PASSWORD=password docker-compose up --build
 ```
-   * -DB_NAME - название вашей базы данных.
-   * -DB_USERNAME - имя пользователя базы данных.
-   * -DB_PASSWORD - пароль пользователя базы данных.
+   * DB_NAME - название вашей базы данных.
+   * DB_USERNAME - имя пользователя базы данных.
+   * DB_PASSWORD - пароль пользователя базы данных.
 
 ##### Способ 2: Использование .env файла
 1. Создайте файл .env :
@@ -40,7 +46,18 @@
     * DB_PASSWORD=ваш пароль
 3. Запустите приложение
     ```bash
-     java -jar target/MyProducts-0.0.2-SNAPSHOT.jar
+     cd docker
+     docker-compose --env-file ../.env up --build 
+    ```
+
+##### Способ 3: Использование базовой конфигурации
+При данной конфигурации приложение будет запущено с базовыми параметрами:
+* DB_NAME - base_name
+* DB_USERNAME - postgres
+* DB_PASSWORD - postgres
+    ```bash
+     cd docker
+     docker-compose up --build 
     ```
    
 ### Функциональные возможности
