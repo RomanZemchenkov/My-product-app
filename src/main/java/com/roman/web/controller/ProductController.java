@@ -2,10 +2,10 @@ package com.roman.web.controller;
 
 import com.roman.service.ProductService;
 import com.roman.service.dto.CreateProductDto;
+import com.roman.service.dto.FilterProductDto;
 import com.roman.service.dto.ShowProductDto;
+import com.roman.service.dto.SortProductDto;
 import com.roman.service.dto.UpdateProductDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -26,7 +27,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
@@ -47,6 +47,32 @@ public class ProductController {
     public ResponseEntity<List<ShowProductDto>> findAll() {
         List<ShowProductDto> allProducts = productService.findAllProducts();
         return new ResponseEntity<>(allProducts, HttpStatus.OK);
+    }
+
+    @GetMapping("/byFilter")
+    public ResponseEntity<List<ShowProductDto>> findAllBy(@RequestParam(name = "title", required = false) String title,
+                                                          @RequestParam(name = "cost", required = false) Integer cost,
+                                                          @RequestParam(name = "costMin", required = false) Integer costMin,
+                                                          @RequestParam(name = "costMax", required = false) Integer costMax,
+                                                          @RequestParam(name = "inStock", required = false) String inStock,
+                                                          @RequestParam(name = "sort", required = false) String sortBy,
+                                                          @RequestParam(name = "direction", required = false, defaultValue = "ASC") String direction,
+                                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                                          @RequestParam(name = "size", required = false, defaultValue = "12") Integer size){
+        FilterProductDto filter = new FilterProductDto.Builder()
+                .setCost(cost)
+                .setCostMin(costMin)
+                .setCostMax(costMax)
+                .setTitle(title)
+                .setInStock(inStock)
+                .build();
+        SortProductDto sort = new SortProductDto.Builder()
+                .setSortBy(sortBy)
+                .setOrderBy(direction)
+                .build();
+
+        List<ShowProductDto> products = productService.findProductByFilter(filter, sort, page, size);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")

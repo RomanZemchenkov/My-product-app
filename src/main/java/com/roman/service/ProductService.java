@@ -1,13 +1,21 @@
 package com.roman.service;
 
 import com.roman.dao.entity.Product;
+import com.roman.dao.entity.ProductState;
+import com.roman.dao.repository.ProductFilterAndSorter;
 import com.roman.dao.repository.ProductRepository;
+import com.roman.dao.repository.ProductSort;
+import com.roman.dao.repository.ProductSpecification;
 import com.roman.service.dto.CreateProductDto;
+import com.roman.service.dto.FilterProductDto;
 import com.roman.service.dto.ShowProductDto;
+import com.roman.service.dto.SortProductDto;
 import com.roman.service.dto.UpdateProductDto;
 import com.roman.service.exception.ProductDoesntExistException;
 import com.roman.service.mapper.ProductMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +28,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ProductSpecification specification = new ProductSpecification();
+    private final ProductSort productSort = new ProductSort();
 
-    @Autowired
     public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
@@ -42,6 +51,13 @@ public class ProductService {
                 .stream()
                 .map(productMapper::mapToShow)
                 .toList();
+    }
+
+    public List<ShowProductDto> findProductByFilter(FilterProductDto filter, SortProductDto sort, int page, int size){
+        Specification<Product> productSpecification = specification.buildSpecification(filter);
+        PageRequest sortParameters = productSort.createSortParameters(sort, page, size);
+        Page<Product> products = productRepository.findAll(productSpecification, sortParameters);
+        return products.stream().map(productMapper::mapToShow).toList();
     }
 
     public ShowProductDto findById(Long id) {
