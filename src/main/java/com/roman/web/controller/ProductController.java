@@ -1,14 +1,12 @@
 package com.roman.web.controller;
 
 import com.roman.service.ProductService;
-import com.roman.service.dto.CreateProductDto;
-import com.roman.service.dto.FilterProductDto;
-import com.roman.service.dto.ShowProductDto;
-import com.roman.service.dto.SortProductDto;
-import com.roman.service.dto.UpdateProductDto;
-import com.roman.service.exception.ExceptionMessage;
+import com.roman.service.dto.product.CreateProductDto;
+import com.roman.service.dto.product.FilterProductDto;
+import com.roman.service.dto.product.ShowProductDto;
+import com.roman.service.dto.product.SortProductDto;
+import com.roman.service.dto.product.UpdateProductDto;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

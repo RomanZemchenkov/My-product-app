@@ -2,9 +2,9 @@ package com.roman.service.mapper;
 
 import com.roman.dao.entity.Product;
 import com.roman.dao.entity.ProductState;
-import com.roman.service.dto.CreateProductDto;
-import com.roman.service.dto.ShowProductDto;
-import com.roman.service.dto.UpdateProductDto;
+import com.roman.service.dto.product.CreateProductDto;
+import com.roman.service.dto.product.ShowProductDto;
+import com.roman.service.dto.product.UpdateProductDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

@@ -1,7 +1,7 @@
-package com.roman.dao.repository;
+package com.roman.dao.repository.product;
 
 import com.roman.dao.entity.Product;
-import com.roman.service.dto.FilterProductDto;
+import com.roman.service.dto.product.FilterProductDto;
 import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
 

@@ -1,4 +1,4 @@
-package com.roman.service.dto;
+package com.roman.service.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

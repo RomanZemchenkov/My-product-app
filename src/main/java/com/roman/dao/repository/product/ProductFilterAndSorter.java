@@ -1,4 +1,4 @@
-package com.roman.dao.repository;
+package com.roman.dao.repository.product;
 
 import lombok.Getter;
 import lombok.Setter;

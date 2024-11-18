@@ -29,38 +29,4 @@ public class ProductExceptions {
         ErrorResponse message = new ErrorResponse(e.getMessage());
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
-
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<Response> productValidationExceptionHandler(MethodArgumentNotValidException e) {
-        StringBuilder sb = new StringBuilder();
-        List<String> exceptionMessageList = e.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .toList();
-        for (String ex : exceptionMessageList) {
-            if (!sb.isEmpty()) {
-                sb.append("\n");
-            }
-            sb.append(ex);
-        }
-
-        return new ResponseEntity<>(new ErrorResponse(sb.toString()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler({HandlerMethodValidationException.class})
-    public ResponseEntity<Response> productMethodValidationExceptionHandler(HandlerMethodValidationException e) {
-        StringBuilder sb = new StringBuilder();
-        e.getAllValidationResults()
-                .stream()
-                .flatMap(el -> el.getResolvableErrors().stream().map(MessageSourceResolvable::getDefaultMessage))
-                .forEach(message -> {
-                    if(!sb.isEmpty()){
-                        sb.append("\n");
-                    }
-                    sb.append(message);
-                });
-        System.out.println(" ");
-        return new ResponseEntity<>(new ErrorResponse(sb.toString()), HttpStatus.BAD_REQUEST);
-    }
 }

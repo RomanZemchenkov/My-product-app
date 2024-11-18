@@ -2,10 +2,10 @@ package com.roman.service;
 
 import com.roman.dao.entity.Product;
 import com.roman.dao.entity.ProductState;
-import com.roman.dao.repository.ProductRepository;
-import com.roman.service.dto.CreateProductDto;
-import com.roman.service.dto.ShowProductDto;
-import com.roman.service.dto.UpdateProductDto;
+import com.roman.dao.repository.product.ProductRepository;
+import com.roman.service.dto.product.CreateProductDto;
+import com.roman.service.dto.product.ShowProductDto;
+import com.roman.service.dto.product.UpdateProductDto;
 import com.roman.service.mapper.ProductMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -52,7 +52,6 @@ public class ProductServiceTest {
     @Test
     @DisplayName("Test for find product by id")
     void findProductById(){
-
         Mockito.when(productRepository.findById(1L)).thenReturn(Optional.of(PRODUCT));
         Mockito.when(productMapper.mapToShow(PRODUCT)).thenReturn(Mockito.any());
 

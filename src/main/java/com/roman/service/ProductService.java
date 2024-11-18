@@ -1,16 +1,14 @@
 package com.roman.service;
 
 import com.roman.dao.entity.Product;
-import com.roman.dao.entity.ProductState;
-import com.roman.dao.repository.ProductFilterAndSorter;
-import com.roman.dao.repository.ProductRepository;
-import com.roman.dao.repository.ProductSort;
-import com.roman.dao.repository.ProductSpecification;
-import com.roman.service.dto.CreateProductDto;
-import com.roman.service.dto.FilterProductDto;
-import com.roman.service.dto.ShowProductDto;
-import com.roman.service.dto.SortProductDto;
-import com.roman.service.dto.UpdateProductDto;
+import com.roman.dao.repository.product.ProductRepository;
+import com.roman.dao.repository.product.ProductSort;
+import com.roman.dao.repository.product.ProductSpecification;
+import com.roman.service.dto.product.CreateProductDto;
+import com.roman.service.dto.product.FilterProductDto;
+import com.roman.service.dto.product.ShowProductDto;
+import com.roman.service.dto.product.SortProductDto;
+import com.roman.service.dto.product.UpdateProductDto;
 import com.roman.service.exception.ProductDoesntExistException;
 import com.roman.service.mapper.ProductMapper;
 import org.springframework.data.domain.Page;

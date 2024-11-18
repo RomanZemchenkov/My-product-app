@@ -1,11 +1,11 @@
 package com.roman.web.controller;
 
 import com.roman.service.ProductService;
-import com.roman.service.dto.CreateProductDto;
-import com.roman.service.dto.FilterProductDto;
-import com.roman.service.dto.ShowProductDto;
-import com.roman.service.dto.SortProductDto;
-import com.roman.service.dto.UpdateProductDto;
+import com.roman.service.dto.product.CreateProductDto;
+import com.roman.service.dto.product.FilterProductDto;
+import com.roman.service.dto.product.ShowProductDto;
+import com.roman.service.dto.product.SortProductDto;
+import com.roman.service.dto.product.UpdateProductDto;
 import com.roman.service.exception.ExceptionMessage;
 import com.roman.service.exception.ProductDoesntExistException;
 import org.hamcrest.Matchers;
@@ -120,7 +120,7 @@ public class ProductControllerTest{
         actions
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result",Matchers.is(false)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",Matchers.is(ExceptionMessage.PRODUCT_DOESNT_EXIST_EXCEPTION_MESSAGE.formatted(100))));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",Matchers.is(ExceptionMessage.PRODUCT_WITH_ID_EXIST_EXCEPTION_MESSAGE.formatted(100))));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class ProductControllerTest{
                 Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "",100,1), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
                 Arguments.of(1L,400,new UpdateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,1), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
                 Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",-1,1), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
-                Arguments.of(100L,404,new UpdateProductDto("Mobile phone", "desc",100,1), ExceptionMessage.PRODUCT_DOESNT_EXIST_EXCEPTION_MESSAGE.formatted(100)),
+                Arguments.of(100L,404,new UpdateProductDto("Mobile phone", "desc",100,1), ExceptionMessage.PRODUCT_WITH_ID_EXIST_EXCEPTION_MESSAGE.formatted(100)),
                 Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",100,-1), ExceptionMessage.PRODUCT_COUNT_IN_STOCK_EXCEPTION_MESSAGE)
         );
     }
@@ -233,7 +233,7 @@ public class ProductControllerTest{
 
         actions.andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result",Matchers.is(false)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message",Matchers.is(ExceptionMessage.PRODUCT_DOESNT_EXIST_EXCEPTION_MESSAGE.formatted(100))));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",Matchers.is(ExceptionMessage.PRODUCT_WITH_ID_EXIST_EXCEPTION_MESSAGE.formatted(100))));
     }
 
 }

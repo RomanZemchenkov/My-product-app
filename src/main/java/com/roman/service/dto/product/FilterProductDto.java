@@ -1,4 +1,4 @@
-package com.roman.service.dto;
+package com.roman.service.dto.product;
 
 import lombok.Getter;
 import lombok.Setter;

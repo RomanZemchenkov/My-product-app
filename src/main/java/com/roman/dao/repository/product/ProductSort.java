@@ -1,6 +1,6 @@
-package com.roman.dao.repository;
+package com.roman.dao.repository.product;
 
-import com.roman.service.dto.SortProductDto;
+import com.roman.service.dto.product.SortProductDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
