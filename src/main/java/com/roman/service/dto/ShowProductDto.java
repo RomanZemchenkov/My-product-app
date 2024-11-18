@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @EqualsAndHashCode(of = {"id","title"})
@@ -14,6 +15,8 @@ public class ShowProductDto {
     private final String description;
     private final Integer cost;
     private final String inStock;
+    @Setter
+    private Integer countInStock;
 
     @JsonCreator
     public ShowProductDto(@JsonProperty(value = "id") long id,

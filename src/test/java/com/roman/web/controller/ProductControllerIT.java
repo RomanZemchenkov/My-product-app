@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.roman.PostgresContainerInitializer;
 import com.roman.service.dto.CreateProductDto;
 import com.roman.service.dto.ShowProductDto;
+import com.roman.service.dto.UpdateProductDto;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class ProductControllerIT extends PostgresContainerInitializer {
         int countOfProducts = 10;
 
         List<CreateProductDto> products = createProductGenerator(countOfProducts);
-        for(CreateProductDto product : products){
+        for (CreateProductDto product : products) {
             String productAsString = objectMapper.writeValueAsString(product);
             mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +75,7 @@ public class ProductControllerIT extends PostgresContainerInitializer {
 
         titleAndTwoPageQuery
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$",Matchers.hasSize(4)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)));
 
         ResultActions titleAndThreePageQuery = mockMvc.perform(MockMvcRequestBuilders.get("/api/products/byFilter")
                 .param("title", "Mobile")
@@ -84,7 +84,7 @@ public class ProductControllerIT extends PostgresContainerInitializer {
 
         titleAndThreePageQuery
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$",Matchers.hasSize(2)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)));
 
         ResultActions findTableWithMaxAndMinCost = mockMvc.perform(MockMvcRequestBuilders.get("/api/products/byFilter")
                 .param("title", "Table")
@@ -92,14 +92,14 @@ public class ProductControllerIT extends PostgresContainerInitializer {
                 .param("costMax", "5000"));
 
         findTableWithMaxAndMinCost.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$",Matchers.hasSize(5)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(5)));
 
-        deleteAll(mockMvc,countOfProducts);
+        deleteAll(mockMvc, countOfProducts);
 
         ResultActions findAllAfterDelete = mockMvc.perform(MockMvcRequestBuilders.get("/api/products"));
 
         findAllAfterDelete.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$",Matchers.empty()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.empty()));
 
     }
 
@@ -109,7 +109,7 @@ public class ProductControllerIT extends PostgresContainerInitializer {
         int countOfProducts = 10;
 
         List<CreateProductDto> products = createProductGenerator(countOfProducts);
-        for(CreateProductDto product : products){
+        for (CreateProductDto product : products) {
             String productAsString = objectMapper.writeValueAsString(product);
             mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -129,23 +129,66 @@ public class ProductControllerIT extends PostgresContainerInitializer {
 
         phones.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].cost",Matchers.is(5000)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].cost", Matchers.is(5000)));
 
-        deleteAll(mockMvc,countOfProducts);
+        deleteAll(mockMvc, countOfProducts);
 
         ResultActions findAllAfterDelete = mockMvc.perform(MockMvcRequestBuilders.get("/api/products"));
 
         findAllAfterDelete.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$",Matchers.empty()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.empty()));
     }
 
-    private static List<CreateProductDto> createProductGenerator(int count){
+    @Test
+    @DisplayName("Four product add and try to update and find updated product")
+    void addUpdateAndFindProduct() throws Exception {
+        int countOfProducts = 1;
+
+        List<CreateProductDto> products = createProductGenerator(countOfProducts);
+        for (CreateProductDto product : products) {
+            String productAsString = objectMapper.writeValueAsString(product);
+            mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(productAsString));
+        }
+
+        Long result = entityManager.createQuery("SELECT count(p) FROM Product p", Long.class).getSingleResult();
+        Assertions.assertThat(result).isEqualTo(countOfProducts * countOfProductVariables);
+
+        ResultActions findAllProducts = mockMvc.perform(MockMvcRequestBuilders.get("/api/products"));
+        byte[] allProductsByArray = findAllProducts.andReturn().getResponse().getContentAsByteArray();
+        JavaType showProductType = objectMapper.getTypeFactory().constructCollectionType(List.class, ShowProductDto.class);
+        List<ShowProductDto> list = objectMapper.readValue(allProductsByArray, showProductType);
+        int firstProductId = (int) list.get(0).getId();
+
+        UpdateProductDto updateMobile = new UpdateProductDto("Mobile 1", "New desc", 17999, 73);
+
+        ResultActions updateQuery = mockMvc.perform(MockMvcRequestBuilders.patch("/api/products/" + firstProductId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateMobile)));
+
+        updateQuery.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(firstProductId)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cost",Matchers.is(17999)));
+
+        Long secondResult = entityManager.createQuery("SELECT count(p) FROM Product p", Long.class).getSingleResult();
+        Assertions.assertThat(result).isEqualTo(secondResult);
+
+        deleteAll(mockMvc, countOfProducts);
+
+        ResultActions findAllAfterDelete = mockMvc.perform(MockMvcRequestBuilders.get("/api/products"));
+
+        findAllAfterDelete.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.empty()));
+    }
+
+    private static List<CreateProductDto> createProductGenerator(int count) {
         List<CreateProductDto> products = new ArrayList<>();
         IntStream.range(1, count + 1).forEach(i -> {
-            products.add(new CreateProductDto("Mobile " + i,"Description", i * 1000,i % 3 == 0 ? "NOT_EXIST" : "EXIST"));
-            products.add(new CreateProductDto("Table " + i,"Description", i * 500,i % 3 == 0 ? "NOT_EXIST" : "EXIST"));
-            products.add(new CreateProductDto("Spoon " + i,"Description", i * 40,i % 3 == 0 ? "NOT_EXIST" : "EXIST"));
-            products.add(new CreateProductDto("Mouse " + i,"Description", i * 200,i % 3 == 0 ? "NOT_EXIST" : "EXIST"));
+            products.add(new CreateProductDto("Mobile " + i, "Description", i * 1000, i % 3 == 0 ? 0 : i));
+            products.add(new CreateProductDto("Table " + i, "Description", i * 500, i % 3 == 0 ? 0 : i));
+            products.add(new CreateProductDto("Spoon " + i, "Description", i * 40, i % 3 == 0 ? 0 : i));
+            products.add(new CreateProductDto("Mouse " + i, "Description", i * 200, i % 3 == 0 ? 0 : i));
         });
         return products;
     }
@@ -161,7 +204,7 @@ public class ProductControllerIT extends PostgresContainerInitializer {
         List<ShowProductDto> list = objectMapper.readValue(firstProduct, showProductType);
         int id = (int) list.get(0).getId();
 
-        for(int i = id; i < countOfProducts * countOfProductVariables + 1 + id; i++){
+        for (int i = id; i < countOfProducts * countOfProductVariables + 1 + id; i++) {
             mockMvc.perform(MockMvcRequestBuilders.delete("/api/products/" + i));
         }
     }

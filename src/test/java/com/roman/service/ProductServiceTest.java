@@ -29,7 +29,7 @@ public class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
-    private static final Product PRODUCT = new Product(1L,"Phone","Description",100,ProductState.EXIST);
+    private static final Product PRODUCT = new Product(1L,"Phone","Description",100,ProductState.EXIST, 1);
     private static final ShowProductDto SHOW_PRODUCT_DTO = new ShowProductDto(1L,"Phone","Description",100,"EXIST");
 
     @Test
@@ -38,7 +38,7 @@ public class ProductServiceTest {
         String title = "Phone";
         String description = "Description";
         int cost = 100;
-        CreateProductDto dto = new CreateProductDto(title, description, cost, "EXIST");
+        CreateProductDto dto = new CreateProductDto(title, description, cost, 1);
 
         Mockito.when(productMapper.mapToProduct(dto)).thenReturn(PRODUCT);
         Mockito.when(productRepository.save(Mockito.any())).thenReturn(PRODUCT);
@@ -77,8 +77,8 @@ public class ProductServiceTest {
     void updateProduct(){
         Mockito.when(productRepository.findById(1L)).thenReturn(Optional.of(PRODUCT));
 
-        UpdateProductDto updateDto = new UpdateProductDto("NewTitle", "NewDescription", 120, "EXIST");
-        Product updateProduct = new Product(1L, "NewTitle", "NewDescription", 120, ProductState.EXIST);
+        UpdateProductDto updateDto = new UpdateProductDto("NewTitle", "NewDescription", 120, 1);
+        Product updateProduct = new Product(1L, "NewTitle", "NewDescription", 120, ProductState.EXIST,1);
         Mockito.when(productMapper.mapToProduct(updateDto,PRODUCT)).thenReturn(updateProduct);
         Mockito.when(productMapper.mapToShow(updateProduct)).thenReturn(SHOW_PRODUCT_DTO);
         Mockito.when(productRepository.save(updateProduct)).thenReturn(updateProduct);

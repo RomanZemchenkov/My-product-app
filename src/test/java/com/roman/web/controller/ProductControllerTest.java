@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -67,9 +66,9 @@ public class ProductControllerTest{
 
     static Stream<Arguments> argumentsForCreateProductTest(){
         return Stream.of(
-                Arguments.of(new CreateProductDto("Mobile","desc",100,"EXIST"),"EXIST",1L),
-                Arguments.of(new CreateProductDto("Mobile1","desc",100,null),"NOT_EXIST",2L),
-                Arguments.of(new CreateProductDto("Mobile2","desc",100,"NOT_EXIST"),"NOT_EXIST",3L)
+                Arguments.of(new CreateProductDto("Mobile","desc",100,1),"EXIST",1L),
+                Arguments.of(new CreateProductDto("Mobile1","desc",100,0),"NOT_EXIST",2L),
+                Arguments.of(new CreateProductDto("Mobile2","desc",100,0),"NOT_EXIST",3L)
         );
     }
 
@@ -88,11 +87,12 @@ public class ProductControllerTest{
 
     static Stream<Arguments> argumentForCreateProductWithWrongParameters(){
         return Stream.of(
-                Arguments.of(new CreateProductDto("","desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto("Mobile phone", "",100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto("Mobile phone", "desc",-1,"EXIST"), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE)
+                Arguments.of(new CreateProductDto("","desc",100,1), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,1), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", "",100,1), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,1), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", "desc",-1,1), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", "desc",100,-1), ExceptionMessage.PRODUCT_COUNT_IN_STOCK_EXCEPTION_MESSAGE)
         );
     }
 
@@ -105,7 +105,7 @@ public class ProductControllerTest{
 
         actions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()",Matchers.is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()",Matchers.is(6)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id",Matchers.is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title",Matchers.is("Mobile Phone")));
 
@@ -168,8 +168,9 @@ public class ProductControllerTest{
     @Test
     @DisplayName("Test /api/product/{id} PATCH update query")
     void updateProduct() throws Exception {
-        UpdateProductDto dto = new UpdateProductDto("Mobile Phone 1", "Description", 111, "EXIST");
+        UpdateProductDto dto = new UpdateProductDto("Mobile Phone 1", "Description", 111, 1);
         ShowProductDto updatedDto = new ShowProductDto(1L, "Mobile Phone 1", "Description", 111,"EXIST");
+        updatedDto.setCountInStock(1);
         Mockito.when(productService.update(1L,dto)).thenReturn(updatedDto);
 
         ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.patch("/api/products/1")
@@ -181,7 +182,8 @@ public class ProductControllerTest{
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Mobile Phone 1")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description", Matchers.is("Description")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cost", Matchers.is(111)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.inStock", Matchers.is("EXIST")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.inStock", Matchers.is("EXIST")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.countInStock", Matchers.is(1)));
     }
 
     @ParameterizedTest
@@ -202,12 +204,13 @@ public class ProductControllerTest{
 
     static Stream<Arguments> argumentForUpdateProductWithWrongParameters(){
         return Stream.of(
-                Arguments.of(1L,400,new UpdateProductDto("","desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "",100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",-1,"EXIST"), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
-                Arguments.of(100L,404,new UpdateProductDto("Mobile phone", "desc",100,"EXIST"), ExceptionMessage.PRODUCT_DOESNT_EXIST_EXCEPTION_MESSAGE.formatted(100))
+                Arguments.of(1L,400,new UpdateProductDto("","desc",100,1), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,1), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "",100,1), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,1), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",-1,1), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
+                Arguments.of(100L,404,new UpdateProductDto("Mobile phone", "desc",100,1), ExceptionMessage.PRODUCT_DOESNT_EXIST_EXCEPTION_MESSAGE.formatted(100)),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",100,-1), ExceptionMessage.PRODUCT_COUNT_IN_STOCK_EXCEPTION_MESSAGE)
         );
     }
 

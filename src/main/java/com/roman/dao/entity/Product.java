@@ -38,13 +38,17 @@ public class Product implements BaseEntity<Long>{
     @Enumerated(value = EnumType.STRING)
     private ProductState inStock;
 
+    @Column(name = "count_in_stock")
+    private Integer countInStock;
+
     public Product(){}
 
-    public Product(Long id, String title, String description, Integer cost, ProductState inStock) {
+    public Product(Long id, String title, String description, Integer cost, ProductState inStock, Integer countInStock) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.cost = cost;
         this.inStock = inStock;
+        this.countInStock = countInStock;
     }
 }

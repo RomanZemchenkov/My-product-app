@@ -38,9 +38,6 @@ public class ProductService {
 
     @Transactional
     public ShowProductDto addNewProduct(CreateProductDto dto) {
-        if(dto.getInStock() == null || dto.getInStock().isEmpty()){
-            dto.setInStock("NOT_EXIST");
-        }
         Product product = productMapper.mapToProduct(dto);
         Product savedProduct = productRepository.save(product);
         return productMapper.mapToShow(savedProduct);
