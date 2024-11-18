@@ -2,7 +2,9 @@ package com.roman.web.controller;
 
 import com.roman.service.ProductService;
 import com.roman.service.dto.CreateProductDto;
+import com.roman.service.dto.FilterProductDto;
 import com.roman.service.dto.ShowProductDto;
+import com.roman.service.dto.SortProductDto;
 import com.roman.service.dto.UpdateProductDto;
 import com.roman.service.exception.ExceptionMessage;
 import com.roman.service.exception.ProductDoesntExistException;
@@ -24,6 +26,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -132,6 +136,33 @@ public class ProductControllerTest{
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.notNullValue()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.is(2)));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Test for /api/product/byFilter GET find products by filter with wrong parameters")
+    @MethodSource("argumentsForFindProductByFilterWithWrongParameters")
+    void findProductByFilterWithWrongParameters(String param, String value, String expectedExceptionMessage) throws Exception {
+        Mockito.when(productService
+                .findProductByFilter(Mockito.any(FilterProductDto.class),Mockito.any(SortProductDto.class),Mockito.anyInt(),Mockito.anyInt()))
+                .thenReturn(List.of());
+
+        ResultActions actions = mockMvc.perform(MockMvcRequestBuilders.get("/api/products/byFilter")
+                .param(param, value));
+
+        actions.andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result",Matchers.is(false)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message",Matchers.is(expectedExceptionMessage)));
+    }
+
+    static Stream<Arguments> argumentsForFindProductByFilterWithWrongParameters(){
+        return Stream.of(
+                Arguments.of("title", IntStream.range(0,256).mapToObj(i -> "a").collect(joining()),ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of("cost", "-1",ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
+                Arguments.of("costMin", "-1",ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
+                Arguments.of("costMax", "-1",ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
+                Arguments.of("page", "-1",ExceptionMessage.PAGE_NUMBER_EXCEPTION_MESSAGE),
+                Arguments.of("size", "0",ExceptionMessage.SIZE_PAGE_EXCEPTION_MESSAGE)
+        );
     }
 
     @Test
