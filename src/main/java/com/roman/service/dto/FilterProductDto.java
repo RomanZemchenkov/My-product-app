@@ -1,5 +1,6 @@
 package com.roman.service.dto;
 
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
 public class FilterProductDto {
 
     private String title;
+    @Min(value = 0L,message = "Message")
     private Integer cost;
     private Integer costMax;
     private Integer costMin;

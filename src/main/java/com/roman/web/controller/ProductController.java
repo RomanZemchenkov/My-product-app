@@ -6,6 +6,10 @@ import com.roman.service.dto.FilterProductDto;
 import com.roman.service.dto.ShowProductDto;
 import com.roman.service.dto.SortProductDto;
 import com.roman.service.dto.UpdateProductDto;
+import com.roman.service.exception.ExceptionMessage;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static com.roman.service.exception.ExceptionMessage.*;
 
 @RestController
 @RequestMapping("/api/products")
@@ -50,15 +56,16 @@ public class ProductController {
     }
 
     @GetMapping("/byFilter")
-    public ResponseEntity<List<ShowProductDto>> findAllBy(@RequestParam(name = "title", required = false) String title,
-                                                          @RequestParam(name = "cost", required = false) Integer cost,
-                                                          @RequestParam(name = "costMin", required = false) Integer costMin,
-                                                          @RequestParam(name = "costMax", required = false) Integer costMax,
+    @Validated
+    public ResponseEntity<List<ShowProductDto>> findAllBy(@RequestParam(name = "title", required = false) @Length(max = 255, message = PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE) String title,
+                                                          @RequestParam(name = "cost", required = false) @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE) Integer cost,
+                                                          @RequestParam(name = "costMin", required = false) @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE) Integer costMin,
+                                                          @RequestParam(name = "costMax", required = false) @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE) Integer costMax,
                                                           @RequestParam(name = "inStock", required = false) String inStock,
                                                           @RequestParam(name = "sort", required = false) String sortBy,
                                                           @RequestParam(name = "direction", required = false, defaultValue = "ASC") String direction,
-                                                          @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-                                                          @RequestParam(name = "size", required = false, defaultValue = "12") Integer size){
+                                                          @RequestParam(name = "page", required = false, defaultValue = "0") @Min(value = 0, message = PAGE_NUMBER_EXCEPTION_MESSAGE) Integer page,
+                                                          @RequestParam(name = "size", required = false, defaultValue = "12") @Min(value = 1, message = SIZE_PAGE_EXCEPTION_MESSAGE) Integer size){
         FilterProductDto filter = new FilterProductDto.Builder()
                 .setCost(cost)
                 .setCostMin(costMin)
