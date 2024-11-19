@@ -19,7 +19,7 @@ import lombok.ToString;
 import java.util.HashSet;
 import java.util.Set;
 
-@ToString(exclude = {"deliveries"})
+@ToString(exclude = {"deliveries","sales"})
 @EqualsAndHashCode(of = {"id"})
 @Getter
 @Setter
@@ -49,6 +49,9 @@ public class Product implements BaseEntity<Long>{
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Delivery> deliveries = new HashSet<>();
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Sale> sales = new HashSet<>();
 
     public Product(){}
 

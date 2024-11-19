@@ -16,9 +16,16 @@ public class ExceptionMessage {
 
     //delivery
     public static final String DELIVERY_TITLE_LENGTH_MESSAGE_EXCEPTION = "Название доставки должно быть не более 255 символов.";
-    public static final String DELIVERY_TITLE_EMPTY_MESSAGE_EXCEPTION = "Название доставки должно быть не более 255 символов.";
+    public static final String DELIVERY_TITLE_EMPTY_MESSAGE_EXCEPTION = "Название доставки не должно быть пустым.";
     public static final String DELIVERY_COUNT_EMPTY_MESSAGE_EXCEPTION = "Количество товаров для поставки не должно быть пустым.";
     public static final String DELIVERY_COUNT_MIN_MESSAGE_EXCEPTION = "Количество товаров для доставки не может быть меньше 1.";
     public static final String DELIVERY_WITH_ID_EXIST_EXCEPTION_MESSAGE = "Поставка с id '%d' названием не найдена.";
+
+    //sale
+    public static final String SALE_TITLE_LENGTH_MESSAGE_EXCEPTION = "Название продажи должно быть не более 255 символов.";
+    public static final String SALE_TITLE_EMPTY_MESSAGE_EXCEPTION = "Название продажи не должно быть пустым..";
+    public static final String SALE_COUNT_EMPTY_MESSAGE_EXCEPTION = "Количество товаров для продажи не должно быть пустым.";
+    public static final String SALE_COUNT_MIN_MESSAGE_EXCEPTION = "Количество товаров для продажи не может быть меньше 1.";
+    public static final String SALE_COUNT_MORE_THAN_MESSAGE_EXCEPTION = "Данное количество товара недоступно для продажи. В данный момент можно продать %d товаров";
 
 }

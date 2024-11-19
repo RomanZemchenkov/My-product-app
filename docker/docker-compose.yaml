@@ -19,7 +19,7 @@ services:
 
 
   product_app:
-    image: "myproducts:0.0.4"
+    image: "myproducts:0.0.5"
     ports:
       - "8080:8080"
     depends_on:
