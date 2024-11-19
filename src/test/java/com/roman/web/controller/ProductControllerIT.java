@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -30,7 +29,6 @@ import java.util.Map;
 )
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@Sql(scripts = {"classpath:sql/init.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 public class ProductControllerIT extends PostgresContainerInitializer {
 
     private final MockMvc mockMvc;
