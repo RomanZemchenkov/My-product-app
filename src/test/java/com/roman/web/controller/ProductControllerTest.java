@@ -81,7 +81,7 @@ public class ProductControllerTest {
 
         actions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(6)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.is("Mobile Phone")));
     }

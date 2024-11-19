@@ -1,7 +1,7 @@
 package com.roman.web.controller;
 
-import com.roman.service.dto.CreateProductDto;
-import com.roman.service.dto.UpdateProductDto;
+import com.roman.service.dto.product.CreateProductDto;
+import com.roman.service.dto.product.UpdateProductDto;
 import com.roman.service.exception.ExceptionMessage;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -16,20 +16,19 @@ public class ProductArgumentProvider {
 
     static Stream<Arguments> argumentsForCreateProductTest(){
         return Stream.of(
-                Arguments.of(new CreateProductDto("Mobile","desc",100,"EXIST"),"EXIST",1L),
-                Arguments.of(new CreateProductDto("Mobile1","desc",100,null),"NOT_EXIST",2L),
-                Arguments.of(new CreateProductDto("Mobile2","desc",100,"NOT_EXIST"),"NOT_EXIST",3L)
+                Arguments.of(new CreateProductDto("Mobile","desc",100,1),"EXIST",1L),
+                Arguments.of(new CreateProductDto("Mobile1","desc",100,0),"NOT_EXIST",2L)
         );
     }
 
 
     static Stream<Arguments> argumentForCreateProductWithWrongParameters(){
         return Stream.of(
-                Arguments.of(new CreateProductDto("","desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto("Mobile phone", "",100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(new CreateProductDto("Mobile phone", "desc",-1,"EXIST"), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE)
+                Arguments.of(new CreateProductDto("","desc",100,1), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,1), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", "",100,1), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,1), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(new CreateProductDto("Mobile phone", "desc",-1,1), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE)
         );
     }
 
@@ -45,12 +44,12 @@ public class ProductArgumentProvider {
     }
     static Stream<Arguments> argumentForUpdateProductWithWrongParameters(){
         return Stream.of(
-                Arguments.of(1L,400,new UpdateProductDto("","desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,"EXIST"), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "",100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,"EXIST"), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
-                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",-1,"EXIST"), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
-                Arguments.of(100L,404,new UpdateProductDto("Mobile phone", "desc",100,"EXIST"), ExceptionMessage.PRODUCT_DOESNT_EXIST_EXCEPTION_MESSAGE.formatted(100))
+                Arguments.of(1L,400,new UpdateProductDto("","desc",100,1), ExceptionMessage.PRODUCT_TITLE_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto(range(0, 256).mapToObj(i -> "a").collect(joining()), "desc",100,1), ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "",100,1), ExceptionMessage.PRODUCT_DESCRIPTION_EMPTY_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", range(0, 4097).parallel().mapToObj(i -> "a").collect(joining()),100,1), ExceptionMessage.PRODUCT_DESCRIPTION_LENGTH_EXCEPTION_MESSAGE),
+                Arguments.of(1L,400,new UpdateProductDto("Mobile phone", "desc",-1,1), ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE),
+                Arguments.of(100L,404,new UpdateProductDto("Mobile phone", "desc",100,1), ExceptionMessage.PRODUCT_WITH_ID_EXIST_EXCEPTION_MESSAGE.formatted(100))
         );
     }
 
