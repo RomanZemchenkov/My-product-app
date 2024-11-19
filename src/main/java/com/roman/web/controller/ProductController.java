@@ -7,12 +7,12 @@ import com.roman.service.dto.product.ShowProductDto;
 import com.roman.service.dto.product.SortProductDto;
 import com.roman.service.dto.product.UpdateProductDto;
 import jakarta.validation.constraints.Min;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,27 +55,10 @@ public class ProductController {
 
     @GetMapping("/byFilter")
     @Validated
-    public ResponseEntity<List<ShowProductDto>> findAllBy(@RequestParam(name = "title", required = false) @Length(max = 255, message = PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE) String title,
-                                                          @RequestParam(name = "cost", required = false) @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE) Integer cost,
-                                                          @RequestParam(name = "costMin", required = false) @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE) Integer costMin,
-                                                          @RequestParam(name = "costMax", required = false) @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE) Integer costMax,
-                                                          @RequestParam(name = "inStock", required = false) String inStock,
-                                                          @RequestParam(name = "sort", required = false) String sortBy,
-                                                          @RequestParam(name = "direction", required = false, defaultValue = "ASC") String direction,
-                                                          @RequestParam(name = "page", required = false, defaultValue = "0") @Min(value = 0, message = PAGE_NUMBER_EXCEPTION_MESSAGE) Integer page,
-                                                          @RequestParam(name = "size", required = false, defaultValue = "12") @Min(value = 1, message = SIZE_PAGE_EXCEPTION_MESSAGE) Integer size){
-        FilterProductDto filter = new FilterProductDto.Builder()
-                .setCost(cost)
-                .setCostMin(costMin)
-                .setCostMax(costMax)
-                .setTitle(title)
-                .setInStock(inStock)
-                .build();
-        SortProductDto sort = new SortProductDto.Builder()
-                .setSortBy(sortBy)
-                .setOrderBy(direction)
-                .build();
-
+    public ResponseEntity<List<ShowProductDto>> findAllBy(@ModelAttribute @Validated FilterProductDto filter,
+                                                          @ModelAttribute @Validated SortProductDto sort,
+                                                          @RequestParam(name = "page", defaultValue = "0") @Min(value = 0, message = PAGE_NUMBER_EXCEPTION_MESSAGE) int page,
+                                                          @RequestParam(name = "size", defaultValue = "12") @Min(value = 1, message = SIZE_PAGE_EXCEPTION_MESSAGE) int size){
         List<ShowProductDto> products = productService.findProductByFilter(filter, sort, page, size);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }

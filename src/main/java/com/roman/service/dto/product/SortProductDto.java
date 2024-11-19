@@ -1,33 +1,15 @@
 package com.roman.service.dto.product;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class SortProductDto {
 
-    private String sortBy;
-    private String orderBy;
+    private final String sortBy;
+    private final String orderBy;
 
-    public static class Builder{
-        private final SortProductDto sortProductDto;
-
-        public Builder(){
-            this.sortProductDto = new SortProductDto();
-        }
-
-        public Builder setSortBy(String sort){
-            sortProductDto.setSortBy(sort);
-            return this;
-        }
-        public Builder setOrderBy(String sort){
-            sortProductDto.setOrderBy(sort);
-            return this;
-        }
-
-        public SortProductDto build(){
-            return sortProductDto;
-        }
+    public SortProductDto(String sortBy, String orderBy) {
+        this.sortBy = sortBy;
+        this.orderBy = orderBy;
     }
 }

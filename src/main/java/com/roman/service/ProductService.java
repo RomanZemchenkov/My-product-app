@@ -26,8 +26,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final ProductSpecification specification = new ProductSpecification();
-    private final ProductSort productSort = new ProductSort();
 
     public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
@@ -49,8 +47,8 @@ public class ProductService {
     }
 
     public List<ShowProductDto> findProductByFilter(FilterProductDto filter, SortProductDto sort, int page, int size){
-        Specification<Product> productSpecification = specification.buildSpecification(filter);
-        PageRequest sortParameters = productSort.createSortParameters(sort, page, size);
+        Specification<Product> productSpecification = ProductSpecification.buildSpecification(filter);
+        PageRequest sortParameters = ProductSort.createSortParameters(sort, page, size);
         Page<Product> products = productRepository.findAll(productSpecification, sortParameters);
         return products.stream().map(productMapper::mapToShow).toList();
     }
