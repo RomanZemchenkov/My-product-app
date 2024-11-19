@@ -1,48 +1,30 @@
 package com.roman.service.dto;
 
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
-import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+
+import static com.roman.service.exception.ExceptionMessage.PRODUCT_COST_EXCEPTION_MESSAGE;
+import static com.roman.service.exception.ExceptionMessage.PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE;
 
 @Getter
-@Setter
 public class FilterProductDto {
 
-    private String title;
-    private Integer cost;
-    private Integer costMax;
-    private Integer costMin;
-    private String inStock;
+    @Length(max = 255, message = PRODUCT_TITLE_LENGTH_EXCEPTION_MESSAGE)
+    private final String title;
+    @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE)
+    private final Integer cost;
+    @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE)
+    private final Integer costMax;
+    @Min(value = 0, message = PRODUCT_COST_EXCEPTION_MESSAGE)
+    private final Integer costMin;
+    private final String inStock;
 
-    public static class Builder{
-        private final FilterProductDto filterProductDto;
-
-        public Builder(){
-            this.filterProductDto = new FilterProductDto();
-        }
-
-        public Builder setTitle(String title){
-            filterProductDto.setTitle(title);
-            return this;
-        }
-        public Builder setCost(Integer cost){
-            filterProductDto.setCost(cost);
-            return this;
-        }
-        public Builder setCostMax(Integer costMax){
-            filterProductDto.setCostMax(costMax);
-            return this;
-        }
-        public Builder setCostMin(Integer costMin){
-            filterProductDto.setCostMin(costMin);
-            return this;
-        }
-        public Builder setInStock(String inStock){
-            filterProductDto.setInStock(inStock);
-            return this;
-        }
-
-        public FilterProductDto build(){
-            return filterProductDto;
-        }
+    public FilterProductDto(String title, Integer cost, Integer costMax, Integer costMin, String inStock) {
+        this.title = title;
+        this.cost = cost;
+        this.costMax = costMax;
+        this.costMin = costMin;
+        this.inStock = inStock;
     }
 }

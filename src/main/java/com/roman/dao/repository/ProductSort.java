@@ -4,11 +4,11 @@ import com.roman.service.dto.SortProductDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-public class ProductSort {
+public final class ProductSort {
 
-    public PageRequest createSortParameters(SortProductDto sort, int page, int size){
+    public static PageRequest createSortParameters(SortProductDto sort, int page, int size){
         Sort.Direction direction;
-        if(sort.getOrderBy().equals("ASC")){
+        if(sort.getOrderBy() == null || sort.getOrderBy().equals("ASC")){
             direction = Sort.Direction.ASC;
         } else {
             direction = Sort.Direction.DESC;

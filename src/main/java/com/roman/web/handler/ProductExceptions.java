@@ -60,7 +60,6 @@ public class ProductExceptions {
                     }
                     sb.append(message);
                 });
-        System.out.println(" ");
         return new ResponseEntity<>(new ErrorResponse(sb.toString()), HttpStatus.BAD_REQUEST);
     }
 }
