@@ -69,7 +69,7 @@
          "title": "Название товара",
          "description": "Описание товара",
          "cost": 100,
-         "inStock": EXIST
+         "countInStock": 10
      }
 3. ```http://localhost:8080/api/products/{n}``` - PATCH запрос на обновление товара; n - id товара
    * Тело запроса должно выгдяеть подобным образом:
@@ -77,7 +77,7 @@
          "title": "Название товара",
          "description": "Описание товара",
          "cost": 100,
-         "inStock": EXIST
+         "countInStock": 10
      }
 4. ```http://localhost:8080/api/products/{n}``` - GET запрос на получение товара по ID; n - id товара
 5. ```http://localhost:8080/api/products/{n}``` - DELETE запрос на удаление товара по ID; n - id товара
